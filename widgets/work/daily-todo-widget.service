@@ -1,0 +1,12 @@
+[Unit]
+Description=Daily Tasks Desktop Widget
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/home/dev/SE/toolbox/widgets/work/run.sh
+Restart=on-failure
+RestartSec=3s
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,12 @@
+[Unit]
+Description=YouTube Desktop Widget
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/home/dev/SE/toolbox/widgets/youtube/run.sh
+Restart=always
+RestartSec=2s
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,144 @@
+#!/bin/bash
+# Mathcha CLI Launcher
+# Launch Mathcha editor as a standalone native desktop application backed by Firefox Gecko
+
+# Auto-detect DISPLAY if unset
+if [ -z "$DISPLAY" ]; then
+    export DISPLAY=":0"
+fi
+
+# Auto-detect WAYLAND_DISPLAY if unset
+if [ -z "$WAYLAND_DISPLAY" ] && [ -e "/run/user/$(id -u)/wayland-0" ]; then
+    export WAYLAND_DISPLAY="wayland-0"
+fi
+
+# Auto-detect XDG_RUNTIME_DIR if unset
+if [ -z "$XDG_RUNTIME_DIR" ]; then
+    export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+fi
+
+# Auto-detect XAUTHORITY if unset or pointing to non-existent file
+if [ -z "$XAUTHORITY" ] || [ ! -f "$XAUTHORITY" ]; then
+    AUTH_FILE=$(ls /run/user/$(id -u)/.mutter-Xwaylandauth.* /run/user/$(id -u)/*auth* ~/.Xauthority 2>/dev/null | head -n 1)
+    if [ -n "$AUTH_FILE" ]; then
+        export XAUTHORITY="$AUTH_FILE"
+    fi
+fi
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+APP_DIR="$SCRIPT_DIR/mathcha-app"
+FIREFOX_PROFILE_HELPER="$APP_DIR/firefox_profile.py"
+PYTHON_BIN="$(which python3 2>/dev/null || echo '/usr/bin/python3')"
+SERVICE_NAME="mathcha-app.service"
+FIREFOX_BIN="/usr/bin/firefox"
+
+# Print Help
+if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    echo "Usage: math [options] [URL]"
+    echo ""
+    echo "Launch Mathcha Mathematical Editor as a native desktop application powered by Firefox."
+    echo ""
+    echo "Arguments:"
+    echo "  [URL]                 Optional document URL or Mathcha link to open"
+    echo ""
+    echo "Options:"
+    echo "  -w, --wait, --foreground  Run in foreground (blocks until window closed)"
+    echo "  --status                  Check if Mathcha is currently running"
+    echo "  --stop, --kill            Close running Mathcha instances"
+    echo "  -h, --help                Show this help message"
+    echo ""
+    echo "Examples:"
+    echo "  math                  # Open Mathcha editor instantly in background"
+    echo "  math --status         # Check status"
+    echo "  math https://www.mathcha.io/editor?id=... # Open specific document"
+    exit 0
+fi
+
+# Function to get running Mathcha PIDs
+get_mathcha_pids() {
+    pgrep -f "firefox.*mathcha_app" 2>/dev/null | tr '\n' ' '
+}
+
+# Status check
+if [ "$1" = "--status" ] || [ "$1" = "status" ]; then
+    PIDS=$(get_mathcha_pids)
+    if [ -n "$PIDS" ] || systemctl --user is-active --quiet "$SERVICE_NAME" 2>/dev/null; then
+        echo "🟢 Mathcha is running (PID: ${PIDS:-service})"
+    else
+        echo "⚪ Mathcha is not running"
+    fi
+    exit 0
+fi
+
+# Stop command
+if [ "$1" = "--stop" ] || [ "$1" = "stop" ] || [ "$1" = "--kill" ]; then
+    systemctl --user stop "$SERVICE_NAME" 2>/dev/null || true
+    PIDS=$(get_mathcha_pids)
+    if [ -n "$PIDS" ]; then
+        echo "Stopping Mathcha (PID: $PIDS)..."
+        kill $PIDS 2>/dev/null || true
+        echo "Done."
+    else
+        echo "Mathcha stopped."
+    fi
+    exit 0
+fi
+
+# Foreground mode check
+FOREGROUND=0
+if [ "$1" = "-w" ] || [ "$1" = "--wait" ] || [ "$1" = "--foreground" ]; then
+    FOREGROUND=1
+    shift
+fi
+
+# Target URL
+TARGET_URL="${1:-https://www.mathcha.io/editor}"
+
+# If already running:
+RUNNING_PIDS=$(get_mathcha_pids)
+if [ -n "$RUNNING_PIDS" ]; then
+    # Bring window to focus asynchronously without blocking
+    (
+        if command -v gdbus >/dev/null 2>&1; then
+            gdbus call --session --dest org.gnome.Shell --object-path /org/gnome/Shell --method org.gnome.Shell.FocusApp "mathcha.desktop" >/dev/null 2>&1 || true
+        fi
+        if command -v wmctrl >/dev/null 2>&1; then
+            wmctrl -x -a Mathcha >/dev/null 2>&1 || true
+        fi
+    ) </dev/null >/dev/null 2>&1 &
+    disown $! 2>/dev/null || true
+    echo "⚡ Mathcha is already active (PID: $RUNNING_PIDS); bringing window to focus."
+    exit 0
+fi
+
+# Ensure profile, userChrome.css, and session cookies are prepared
+if [ -f "$FIREFOX_PROFILE_HELPER" ]; then
+    "$PYTHON_BIN" "$FIREFOX_PROFILE_HELPER" >/dev/null 2>&1
+fi
+
+# Foreground mode execution
+if [ "$FOREGROUND" -eq 1 ]; then
+    exec "$FIREFOX_BIN" --no-remote -P mathcha_app --class Mathcha "$TARGET_URL"
+fi
+
+# Background execution via systemd user session (cleanest daemonization on modern Linux)
+if command -v systemd-run >/dev/null 2>&1 && systemctl --user is-active --quiet default.target 2>/dev/null; then
+    systemd-run --user \
+        --unit="mathcha-app" \
+        --slice=app.slice \
+        --description="Mathcha Mathematical Editor" \
+        --setenv=DISPLAY="$DISPLAY" \
+        ${WAYLAND_DISPLAY:+--setenv=WAYLAND_DISPLAY="$WAYLAND_DISPLAY"} \
+        ${XDG_RUNTIME_DIR:+--setenv=XDG_RUNTIME_DIR="$XDG_RUNTIME_DIR"} \
+        ${XAUTHORITY:+--setenv=XAUTHORITY="$XAUTHORITY"} \
+        "$FIREFOX_BIN" --no-remote -P mathcha_app --class Mathcha "$TARGET_URL" >/dev/null 2>&1
+    echo "⚡ Mathcha launched in background."
+    exit 0
+else
+    # Fallback daemonization
+    nohup "$FIREFOX_BIN" --no-remote -P mathcha_app --class Mathcha "$TARGET_URL" </dev/null >/dev/null 2>&1 &
+    BG_PID=$!
+    disown $BG_PID 2>/dev/null || true
+    echo "⚡ Mathcha launched in background (PID: $BG_PID)."
+    exit 0
+fi

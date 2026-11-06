@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Daily Diet Widget
+Comment=Modern transparent desktop widget for daily diet and nutrition
+Exec=/home/dev/SE/toolbox/widgets/diet/run.sh
+Icon=restaurant
+Terminal=false
+Categories=Utility;Office;
+X-GNOME-Autostart-enabled=true

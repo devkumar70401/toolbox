@@ -1,0 +1,12 @@
+[Unit]
+Description=System Vitals (SysMon) Desktop Widget
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/home/dev/SE/toolbox/widgets/sysmon/run.sh
+Restart=on-failure
+RestartSec=3s
+
+[Install]
+WantedBy=default.target

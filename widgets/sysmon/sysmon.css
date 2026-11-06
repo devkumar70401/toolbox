@@ -1,0 +1,146 @@
+/* Glassmorphic Stylesheet for System Vitals (SysMon) Desktop Widget */
+
+window {
+    background-color: transparent;
+}
+
+.main-card {
+    background-color: rgba(18, 20, 26, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+    padding: 14px;
+}
+
+/* Header */
+.header-box {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+}
+
+.title-main {
+    font-size: 13px;
+    font-weight: 800;
+    color: #f9fafb;
+    letter-spacing: 0.5px;
+}
+
+.title-sub {
+    font-size: 10px;
+    font-weight: 600;
+    color: #9ca3af;
+    letter-spacing: 0.3px;
+}
+
+.btn-icon {
+    background: transparent;
+    border: none;
+    color: #9ca3af;
+    padding: 3px 6px;
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+.btn-icon:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+/* Sub Cards */
+.sub-card {
+    background-color: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 8px 10px;
+    margin-bottom: 8px;
+}
+
+.section-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: #94a3b8;
+    letter-spacing: 0.5px;
+}
+
+/* Network Speed */
+.net-speed-down {
+    font-size: 12px;
+    font-weight: 700;
+    color: #38bdf8; /* Sky Cyan */
+}
+
+.net-speed-up {
+    font-size: 12px;
+    font-weight: 700;
+    color: #a78bfa; /* Violet */
+}
+
+.net-badge {
+    background-color: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    color: #7dd3fc;
+    border-radius: 8px;
+    padding: 1px 6px;
+    font-size: 9px;
+    font-weight: 700;
+}
+
+/* RAM Progress */
+.ram-bar-fill {
+    background-color: #06b6d4;
+    border-radius: 3px;
+    min-height: 4px;
+}
+
+.ram-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #e2e8f0;
+}
+
+/* Sensor Pills */
+.sensor-pill {
+    border-radius: 8px;
+    padding: 3px 7px;
+    font-size: 10px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.sensor-inactive {
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    color: #64748b;
+}
+
+.sensor-active-mic {
+    background-color: rgba(239, 68, 68, 0.18);
+    border: 1px solid rgba(239, 68, 68, 0.45);
+    color: #fca5a5;
+}
+
+.sensor-active-spk {
+    background-color: rgba(16, 185, 129, 0.18);
+    border: 1px solid rgba(16, 185, 129, 0.45);
+    color: #6ee7b7;
+}
+
+.sensor-active-cam {
+    background-color: rgba(244, 63, 94, 0.2);
+    border: 1px solid rgba(244, 63, 94, 0.5);
+    color: #fda4af;
+}
+
+.sensor-active-gps {
+    background-color: rgba(245, 158, 11, 0.2);
+    border: 1px solid rgba(245, 158, 11, 0.45);
+    color: #fcd34d;
+}
+
+.sensor-active-bt {
+    background-color: rgba(59, 130, 246, 0.18);
+    border: 1px solid rgba(59, 130, 246, 0.45);
+    color: #93c5fd;
+}
+

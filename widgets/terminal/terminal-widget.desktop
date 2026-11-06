@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Terminal Desktop Widget
+Comment=Modern transparent desktop terminal widget
+Exec=/home/dev/SE/toolbox/widgets/terminal/run.sh
+Icon=utilities-terminal
+Terminal=false
+Categories=System;TerminalEmulator;
+X-GNOME-Autostart-enabled=true

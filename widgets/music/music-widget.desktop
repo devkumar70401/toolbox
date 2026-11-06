@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Music Player Widget
+Comment=Modern transparent desktop widget for MP3 playback
+Exec=/home/dev/SE/toolbox/widgets/music/run.sh
+Icon=audio-x-generic
+Terminal=false
+Categories=AudioVideo;Audio;Player;
+X-GNOME-Autostart-enabled=true

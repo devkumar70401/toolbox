@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# aria_torr - Turbo BitTorrent & Magnet Link Downloader
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BIN_DIR="$SCRIPT_DIR/../bin"
+
+if [ -d "$BIN_DIR" ]; then
+    export PATH="$BIN_DIR:$PATH"
+fi
+
+DEFAULT_DOWNLOAD_DIR="$HOME/SE/toolbox/downloads"
+mkdir -p "$DEFAULT_DOWNLOAD_DIR"
+
+if [ $# -eq 0 ] || [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    echo -e "\033[1;36m==================================================\033[0m"
+    echo -e "\033[1;32m  🧲 aria_torr - BitTorrent & Magnet Downloader\033[0m"
+    echo -e "\033[1;36m==================================================\033[0m"
+    echo -e "Usage:"
+    echo -e "  aria_torr <magnet-url-or-torrent-path> [options]"
+    echo -e ""
+    echo -e "Examples:"
+    echo -e "  aria_torr 'magnet:?xt=urn:btih:...'"
+    echo -e "  aria_torr ubuntu-24.04.torrent"
+    echo -e ""
+    echo -e "Default save location: \033[1;34m$DEFAULT_DOWNLOAD_DIR\033[0m"
+    exit 0
+fi
+
+exec aria2c \
+    --seed-time=0 \
+    --enable-dht=true \
+    --bt-enable-lpd=true \
+    --summary-interval=1 \
+    -d "$DEFAULT_DOWNLOAD_DIR" \
+    "$@"

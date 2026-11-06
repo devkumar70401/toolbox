@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=YouTube Widget
+Comment=Isolated frameless transparent YouTube desktop widget
+Exec=/home/dev/SE/toolbox/widgets/youtube/run.sh
+Icon=video-x-generic
+Terminal=false
+Categories=AudioVideo;Video;Player;
+X-GNOME-Autostart-enabled=true

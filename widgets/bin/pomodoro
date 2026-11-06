@@ -1,0 +1,119 @@
+#!/usr/bin/env bash
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PARENT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# Dynamic binary resolution: local bin first, then PATH, then ~/.local/bin
+resolve_bin() {
+    local name="$1"
+    if [ -x "$SCRIPT_DIR/$name" ]; then
+        echo "$SCRIPT_DIR/$name"
+    elif command -v "$name" >/dev/null 2>&1; then
+        command -v "$name"
+    elif [ -x "$HOME/.local/bin/$name" ]; then
+        echo "$HOME/.local/bin/$name"
+    else
+        echo "$SCRIPT_DIR/$name"
+    fi
+}
+
+GUARD_BIN="$(resolve_bin pomodoro-guard)"
+CLI_BIN="$(resolve_bin pomodoro-cli)"
+UI_BIN="$(resolve_bin pomodoro-ui)"
+if [ -x "$PARENT_DIR/pomodoro/run.sh" ]; then
+    WIDGET_RUNNER="$PARENT_DIR/pomodoro/run.sh"
+elif [ -x "$PARENT_DIR/run.sh" ]; then
+    WIDGET_RUNNER="$PARENT_DIR/run.sh"
+else
+    WIDGET_RUNNER="$SCRIPT_DIR/../pomodoro/run.sh"
+fi
+
+CMD="${1:-start}"
+
+case "$CMD" in
+    start)
+        # Check if guard is running
+        if ! pgrep -f "pomodoro-guard" >/dev/null 2>&1; then
+            nohup "$GUARD_BIN" >/dev/null 2>&1 &
+            disown
+            sleep 0.2
+        fi
+
+        # Send start-work signal
+        "$CLI_BIN" start-work 25 >/dev/null 2>&1 || true
+
+        # Check if UI is running
+        if ! pgrep -f "pomodoro-ui" >/dev/null 2>&1; then
+            nohup "$UI_BIN" >/dev/null 2>&1 &
+            disown
+        fi
+
+        echo "🍅 Pomodoro started in background!"
+        echo "   • Work: 25 mins (normal input)"
+        echo "   • Break: 5 mins (enforced input block, looping)"
+        echo "   • Floating indicator is in the top-right corner (drag it anywhere)"
+        echo "   • Stop anytime with: pomodoro stop (or close the floating window)"
+        ;;
+
+    stop|kill|quit|cut)
+        echo "Stopping Pomodoro..."
+        "$CLI_BIN" emergency-unlock >/dev/null 2>&1 || true
+        killall pomodoro-ui pomodoro-guard 2>/dev/null || true
+        echo "🍅 Pomodoro stopped. Input released and session closed."
+        ;;
+
+    status)
+        "$CLI_BIN" status
+        TODAY="$(date +%Y-%m-%d)"
+        for candidate in "$PARENT_DIR/../daily/${TODAY}.md" "$PARENT_DIR/daily/${TODAY}.md" "$HOME/SE/toolbox/daily/${TODAY}.md" "$PARENT_DIR/Daily/${TODAY}.md" "$HOME/Daily/${TODAY}.md" "$HOME/SE/Devendra/Daily/${TODAY}.md"; do
+            if [ -f "$candidate" ]; then
+                echo ""
+                echo "Today's Pomodoro Data (${TODAY}):"
+                awk '/^## .*Pomodoro/{flag=1; next} /^## /{flag=0} flag && /^- /{print "  • " substr($0, 3)}' "$candidate"
+                break
+            fi
+        done
+        ;;
+
+    break)
+        "$CLI_BIN" start-break 5
+        ;;
+
+    work)
+        "$CLI_BIN" emergency-unlock >/dev/null 2>&1 || true
+        "$CLI_BIN" start-work 25
+        ;;
+
+    devices)
+        "$CLI_BIN" devices
+        ;;
+
+    widget)
+        if ! pgrep -f "pomodoro_widget.py" >/dev/null 2>&1; then
+            nohup "$WIDGET_RUNNER" >/dev/null 2>&1 &
+            disown
+            echo "🍅 Pomodoro Desktop Widget launched!"
+        else
+            echo "🍅 Pomodoro Desktop Widget is already running."
+        fi
+        ;;
+
+    help|--help|-h)
+        echo "Usage: pomodoro [COMMAND]"
+        echo ""
+        echo "Commands:"
+        echo "  pomodoro          Start 25m/5m looping Pomodoro with floating corner indicator"
+        echo "  pomodoro widget   Launch the modern transparent desktop Pomodoro widget"
+        echo "  pomodoro stop     Stop Pomodoro and close floating indicator"
+        echo "  pomodoro status   Check current countdown and lock status"
+        echo "  pomodoro break    Manually trigger 5-minute break"
+        echo "  pomodoro work     Manually start/restart 25-minute work cycle"
+        echo "  pomodoro devices  List detected input devices"
+        ;;
+
+    *)
+        echo "Unknown command: '$CMD'. Run 'pomodoro help' for usage."
+        exit 1
+        ;;
+esac

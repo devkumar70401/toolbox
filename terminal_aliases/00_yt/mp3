@@ -1,0 +1,278 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# mp3 - High-Speed Video to MP3 Audio Converter (Folder & File Batch Support)
+# Location: ~/SE/projects/01_alias/00_yt/mp3
+# ==============================================================================
+
+set -o pipefail
+
+# ANSI Color Codes
+CYAN="\033[1;36m"
+GREEN="\033[1;32m"
+YELLOW="\033[1;33m"
+RED="\033[1;31m"
+GRAY="\033[0;90m"
+BOLD="\033[1m"
+RESET="\033[0m"
+
+# Ensure ffmpeg is available
+if [ -d "$HOME/SE/toolbox/terminal_aliases/bin" ]; then
+    export PATH="$HOME/SE/toolbox/terminal_aliases/bin:$PATH"
+fi
+
+if ! command -v ffmpeg &>/dev/null; then
+    if [ -x "$HOME/.local/bin/ffmpeg" ]; then
+        export PATH="$HOME/.local/bin:$PATH"
+    else
+        echo -e "${RED}Error: ffmpeg is not installed or not in PATH.${RESET}" >&2
+        exit 1
+    fi
+fi
+
+# Print Help
+show_help() {
+    echo -e "${CYAN}${BOLD}mp3 - Convert Video Files & Folders to High-Quality MP3${RESET}
+
+${BOLD}USAGE:${RESET}
+  mp3 [OPTIONS] <folder_or_file> [more_paths...]
+  mp3                    (Interactive mode)
+
+${BOLD}OPTIONS:${RESET}
+  -o, --output <dir>     Save all MP3s into the specified directory
+  -s, --subfolder        Save MP3s in an 'mp3' subfolder inside each video folder
+  -m, --downloads        Save MP3s to ~/SE/toolbox/downloads
+  -r, --recursive        Process video files in subfolders recursively
+  -f, --force            Overwrite existing MP3 files (default: skip existing)
+  -h, --help             Show this help message
+
+${BOLD}EXAMPLES:${RESET}
+  mp3 /path/to/videos                    # Convert all MP4s in folder (saved in same folder)
+  mp3 -s /path/to/videos                 # Convert and save in /path/to/videos/mp3/
+  mp3 -m /path/to/videos                 # Convert and save into ~/SE/toolbox/downloads
+  mp3 -o ./output /path/to/videos        # Convert and save into ./output
+  mp3 video1.mp4 video2.mkv              # Convert individual files
+  mp3                                    # Interactive prompt (paste path directly)"
+}
+
+# Resolve Central Downloads/Media Directory inside toolbox
+CENTRAL_MUSIC_DIR="$HOME/SE/toolbox/downloads"
+mkdir -p "$CENTRAL_MUSIC_DIR"
+
+# Options
+OUTPUT_MODE="in-place"  # "in-place", "subfolder", "custom", "music"
+CUSTOM_OUTPUT_DIR=""
+RECURSIVE=false
+FORCE=false
+POSITIONAL_ARGS=()
+
+# Parse Command-Line Flags
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -h|--help)
+            show_help
+            exit 0
+            ;;
+        -o|--output)
+            OUTPUT_MODE="custom"
+            CUSTOM_OUTPUT_DIR="$2"
+            shift 2
+            ;;
+        -s|--subfolder)
+            OUTPUT_MODE="subfolder"
+            shift
+            ;;
+        -m|--music)
+            OUTPUT_MODE="music"
+            shift
+            ;;
+        -r|--recursive)
+            RECURSIVE=true
+            shift
+            ;;
+        -f|--force)
+            FORCE=true
+            shift
+            ;;
+        --)
+            shift
+            POSITIONAL_ARGS+=("$@")
+            break
+            ;;
+        -*)
+            echo -e "${RED}Unknown option: $1${RESET}" >&2
+            echo "Use 'mp3 --help' for usage."
+            exit 1
+            ;;
+        *)
+            POSITIONAL_ARGS+=("$1")
+            shift
+            ;;
+    esac
+done
+
+# If no arguments given, enter interactive mode
+if [ ${#POSITIONAL_ARGS[@]} -eq 0 ]; then
+    echo -e "${CYAN}${BOLD}🎵 High-Speed MP4 to MP3 Audio Converter${RESET}"
+    echo -e "${GRAY}-------------------------------------------------------${RESET}"
+    echo -ne "${YELLOW}📁 Enter folder or file path: ${RESET}"
+    read -r raw_input
+
+    # Strip surrounding single or double quotes
+    raw_input="${raw_input%\"}"
+    raw_input="${raw_input#\"}"
+    raw_input="${raw_input%\'}"
+    raw_input="${raw_input#\'}"
+
+    if [ -z "$raw_input" ]; then
+        echo -e "${RED}No path provided. Exiting.${RESET}"
+        exit 1
+    fi
+    POSITIONAL_ARGS=("$raw_input")
+fi
+
+# Healing unquoted spaced paths:
+# If first arg does not exist, but all positional args joined together exist as a file/dir
+if [ ! -e "${POSITIONAL_ARGS[0]}" ]; then
+    joined_args="${POSITIONAL_ARGS[*]}"
+    if [ -e "$joined_args" ]; then
+        POSITIONAL_ARGS=("$joined_args")
+    fi
+fi
+
+# Validate custom output dir if specified
+if [ "$OUTPUT_MODE" = "custom" ]; then
+    mkdir -p "$CUSTOM_OUTPUT_DIR" || {
+        echo -e "${RED}Error: Cannot create output directory '$CUSTOM_OUTPUT_DIR'${RESET}" >&2
+        exit 1
+    }
+fi
+
+# Supported video extensions (case-insensitive)
+VIDEO_EXTS=("mp4" "mkv" "webm" "avi" "mov" "flv" "m4v" "ts" "wmv" "MP4" "MKV" "WEBM" "AVI" "MOV" "FLV" "M4V" "TS" "WMV")
+
+# Collect all files to convert
+FILES_TO_CONVERT=()
+
+for target in "${POSITIONAL_ARGS[@]}"; do
+    # Expand tilde if present
+    target="${target/#\~/$HOME}"
+
+    if [ -f "$target" ]; then
+        FILES_TO_CONVERT+=("$target")
+    elif [ -d "$target" ]; then
+        echo -e "${CYAN}🔍 Scanning directory:${RESET} $target"
+        
+        # Build find expression for video extensions
+        find_args=()
+        if [ "$RECURSIVE" = false ]; then
+            find_args+=("-maxdepth" "1")
+        fi
+        find_args+=("-type" "f" "(")
+        
+        first=true
+        for ext in "${VIDEO_EXTS[@]}"; do
+            if [ "$first" = true ]; then
+                find_args+=("-iname" "*.$ext")
+                first=false
+            else
+                find_args+=("-o" "-iname" "*.$ext")
+            fi
+        done
+        find_args+=(")")
+
+        # Read matched files into array (handles spaces, quotes, UTF-8 safely)
+        while IFS= read -r -d '' found_file; do
+            FILES_TO_CONVERT+=("$found_file")
+        done < <(find "$target" "${find_args[@]}" -print0 | sort -z)
+    else
+        echo -e "${YELLOW}Warning: '${target}' does not exist. Skipping.${RESET}"
+    fi
+done
+
+TOTAL_FILES=${#FILES_TO_CONVERT[@]}
+
+if [ "$TOTAL_FILES" -eq 0 ]; then
+    echo -e "${YELLOW}No video files found to convert.${RESET}"
+    exit 0
+fi
+
+echo -e "\n${BOLD}${CYAN}=======================================================${RESET}"
+echo -e "🎧  ${BOLD}Converting ${TOTAL_FILES} video file(s) to MP3${RESET}"
+echo -e "⚡  ${BOLD}Quality:${RESET} ${GREEN}320k / VBR 0 (Highest Quality libmp3lame)${RESET}"
+case "$OUTPUT_MODE" in
+    "in-place")
+        echo -e "📁  ${BOLD}Destination:${RESET} ${YELLOW}In-place (same folder as source video)${RESET}"
+        ;;
+    "subfolder")
+        echo -e "📁  ${BOLD}Destination:${RESET} ${YELLOW}Inside 'mp3/' subfolder${RESET}"
+        ;;
+    "music")
+        echo -e "📁  ${BOLD}Destination:${RESET} ${YELLOW}$CENTRAL_MUSIC_DIR${RESET}"
+        mkdir -p "$CENTRAL_MUSIC_DIR"
+        ;;
+    "custom")
+        echo -e "📁  ${BOLD}Destination:${RESET} ${YELLOW}$CUSTOM_OUTPUT_DIR${RESET}"
+        ;;
+esac
+echo -e "${BOLD}${CYAN}=======================================================${RESET}\n"
+
+CONVERTED_COUNT=0
+SKIPPED_COUNT=0
+FAILED_COUNT=0
+CURRENT_INDEX=0
+
+for input_file in "${FILES_TO_CONVERT[@]}"; do
+    ((CURRENT_INDEX++))
+    
+    file_dir="$(dirname "$input_file")"
+    file_name="$(basename "$input_file")"
+    file_stem="${file_name%.*}"
+
+    # Determine destination folder
+    case "$OUTPUT_MODE" in
+        "in-place")
+            target_dir="$file_dir"
+            ;;
+        "subfolder")
+            target_dir="$file_dir/mp3"
+            mkdir -p "$target_dir"
+            ;;
+        "music")
+            target_dir="$CENTRAL_MUSIC_DIR"
+            ;;
+        "custom")
+            target_dir="$CUSTOM_OUTPUT_DIR"
+            ;;
+    esac
+
+    output_file="$target_dir/${file_stem}.mp3"
+
+    # Check if already converted
+    if [ "$FORCE" = false ] && [ -f "$output_file" ] && [ -s "$output_file" ]; then
+        echo -e "[${CURRENT_INDEX}/${TOTAL_FILES}] ${GRAY}⏭️  Skipping (already exists):${RESET} $file_name"
+        ((SKIPPED_COUNT++))
+        continue
+    fi
+
+    echo -ne "[${CURRENT_INDEX}/${TOTAL_FILES}] ${CYAN}🔄 Converting:${RESET} $file_name ... "
+
+    # Run ffmpeg conversion
+    # -vn: disable video
+    # -c:a libmp3lame: high quality MP3 encoder
+    # -q:a 0: variable bitrate level 0 (~245-320kbps highest quality)
+    # -map 0:a:0?: map first audio track if present
+    # -id3v2_version 3: maximum compatibility with all media players
+    ffmpeg -nostdin -i "$input_file" -vn -c:a libmp3lame -q:a 0 -map 0:a:0? -id3v2_version 3 "$output_file" -y -loglevel error
+
+    if [ $? -eq 0 ] && [ -f "$output_file" ] && [ -s "$output_file" ]; then
+        echo -e "${GREEN}Done!${RESET}"
+        ((CONVERTED_COUNT++))
+    else
+        echo -e "${RED}FAILED!${RESET}"
+        ((FAILED_COUNT++))
+    fi
+done
+
+echo -e "\n${BOLD}${CYAN}-------------------------------------------------------${RESET}"
+echo -e "🎉  ${BOLD}Finished!${RESET} Converted: ${GREEN}${CONVERTED_COUNT}${RESET} | Skipped: ${YELLOW}${SKIPPED_COUNT}${RESET} | Failed: ${RED}${FAILED_COUNT}${RESET}"
+echo -e "${BOLD}${CYAN}-------------------------------------------------------${RESET}\n"

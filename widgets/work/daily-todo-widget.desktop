@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Daily Tasks Widget
+Comment=Modern transparent desktop widget for daily to-dos
+Exec=/home/dev/SE/toolbox/widgets/work/run.sh
+Icon=task-due
+Terminal=false
+Categories=Utility;Office;
+X-GNOME-Autostart-enabled=true

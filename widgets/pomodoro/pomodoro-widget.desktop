@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Pomodoro Widget
+Comment=Modern transparent desktop Pomodoro widget
+Exec=/home/dev/SE/toolbox/widgets/pomodoro/run.sh
+Icon=alarm-symbolic
+Terminal=false
+Categories=Utility;Office;
+X-GNOME-Autostart-enabled=true

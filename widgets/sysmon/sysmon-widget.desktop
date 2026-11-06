@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=System Vitals Widget
+Comment=Modern transparent desktop widget for apps, memory, sensors, and network speed
+Exec=/home/dev/SE/toolbox/widgets/sysmon/run.sh
+Icon=utilities-system-monitor
+Terminal=false
+Categories=Utility;System;
+X-GNOME-Autostart-enabled=false
+Hidden=true

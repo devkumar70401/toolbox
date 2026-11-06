@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Daily Routines Widget
+Comment=Modern transparent desktop widget for daily routines checklist
+Exec=/home/dev/SE/toolbox/widgets/routines/run.sh
+Icon=view-refresh
+Terminal=false
+Categories=Utility;Office;
+X-GNOME-Autostart-enabled=true

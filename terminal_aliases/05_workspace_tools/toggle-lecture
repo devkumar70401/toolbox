@@ -1,0 +1,12 @@
+#!/usr/bin/env python3
+import subprocess
+
+try:
+    cmd = "dbus-send --session --dest=org.freedesktop.DBus --type=method_call --print-reply /org/freedesktop/DBus org.freedesktop.DBus.ListNames"
+    output = subprocess.check_output(cmd, shell=True).decode()
+    for line in output.splitlines():
+        if "org.mpris.MediaPlayer2" in line:
+            bus_name = line.split('"')[1]
+            subprocess.run(f"dbus-send --session --dest={bus_name} --type=method_call /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.PlayPause", shell=True)
+except Exception:
+    pass

@@ -1,0 +1,13 @@
+{
+  "x": 1544,
+  "y": 290,
+  "width": 360,
+  "height": 223,
+  "always_on_top": false,
+  "auto_start_next": true,
+  "idle_pause_enabled": true,
+  "idle_threshold_seconds": 60,
+  "restore_idle_seconds": false,
+  "work_duration_minutes": 25,
+  "break_duration_minutes": 5
+}

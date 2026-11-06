@@ -1,0 +1,381 @@
+/* Modern Glassmorphic Stylesheet for Combined Desktop Widget (Work, Diet & Nutrition, Daily Routines) */
+
+window {
+    background-color: transparent;
+}
+
+.main-card {
+    border-radius: 20px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+    padding: 16px;
+    transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+/* ==========================================================================
+   THEME: WORK (Indigo Scheme)
+   ========================================================================== */
+.main-card.theme-work {
+    background-color: rgba(18, 20, 26, 0.82);
+    border: 1px solid rgba(99, 102, 241, 0.25);
+}
+
+.theme-work .tab-btn.active {
+    border-bottom: 2px solid #6366f1;
+}
+
+.theme-work .tab-btn.active .tab-label {
+    color: #818cf8;
+}
+
+.theme-work .progress-badge {
+    background-color: rgba(99, 102, 241, 0.22);
+    color: #c7d2fe;
+    border: 1px solid rgba(99, 102, 241, 0.4);
+}
+
+.theme-work progressbar progress {
+    background-color: #6366f1;
+    background-image: none;
+    border-radius: 4px;
+    min-height: 4px;
+}
+
+.theme-work .task-row:hover {
+    background-color: rgba(255, 255, 255, 0.07);
+    border-color: rgba(99, 102, 241, 0.3);
+}
+
+.theme-work .entry-add:focus {
+    border-color: #6366f1;
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.theme-work .btn-add {
+    background-color: #6366f1;
+    background-image: none;
+    color: #ffffff;
+}
+
+.theme-work .btn-add:hover {
+    background-color: #4f46e5;
+    background-image: none;
+}
+
+.theme-work checkbutton check:hover {
+    border-color: #818cf8;
+}
+
+.theme-work checkbutton check:checked {
+    background-color: #6366f1;
+    background-image: none;
+    border-color: #6366f1;
+    color: white;
+}
+
+/* ==========================================================================
+   THEME: DIET & NUTRITION (Emerald Green Scheme)
+   ========================================================================== */
+.main-card.theme-diet {
+    background-color: rgba(18, 24, 22, 0.82);
+    border: 1px solid rgba(52, 211, 153, 0.25);
+}
+
+.theme-diet .tab-btn.active {
+    border-bottom: 2px solid #10b981;
+}
+
+.theme-diet .tab-btn.active .tab-label {
+    color: #34d399;
+}
+
+.theme-diet .progress-badge {
+    background-color: rgba(16, 185, 129, 0.22);
+    color: #a7f3d0;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.theme-diet progressbar progress {
+    background-color: #10b981;
+    background-image: none;
+    border-radius: 4px;
+    min-height: 4px;
+}
+
+.theme-diet .task-row:hover {
+    background-color: rgba(255, 255, 255, 0.07);
+    border-color: rgba(52, 211, 153, 0.3);
+}
+
+.theme-diet .entry-add:focus {
+    border-color: #10b981;
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.theme-diet .btn-add {
+    background-color: #10b981;
+    background-image: none;
+    color: #ffffff;
+}
+
+.theme-diet .btn-add:hover {
+    background-color: #059669;
+    background-image: none;
+}
+
+.theme-diet checkbutton check:hover {
+    border-color: #34d399;
+}
+
+.theme-diet checkbutton check:checked {
+    background-color: #10b981;
+    background-image: none;
+    border-color: #10b981;
+    color: white;
+}
+
+/* ==========================================================================
+   THEME: DAILY ROUTINES (Amber Gold Scheme)
+   ========================================================================== */
+.main-card.theme-routines {
+    background-color: rgba(24, 20, 14, 0.82);
+    border: 1px solid rgba(251, 191, 36, 0.25);
+}
+
+.theme-routines .tab-btn.active {
+    border-bottom: 2px solid #f59e0b;
+}
+
+.theme-routines .tab-btn.active .tab-label {
+    color: #fbbf24;
+}
+
+.theme-routines .progress-badge {
+    background-color: rgba(245, 158, 11, 0.22);
+    color: #fde68a;
+    border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.theme-routines progressbar progress {
+    background-color: #f59e0b;
+    background-image: none;
+    border-radius: 4px;
+    min-height: 4px;
+}
+
+.theme-routines .task-row:hover {
+    background-color: rgba(255, 255, 255, 0.07);
+    border-color: rgba(251, 191, 36, 0.3);
+}
+
+.theme-routines .entry-add:focus {
+    border-color: #f59e0b;
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.theme-routines .btn-add {
+    background-color: #f59e0b;
+    background-image: none;
+    color: #ffffff;
+}
+
+.theme-routines .btn-add:hover {
+    background-color: #d97706;
+    background-image: none;
+}
+
+.theme-routines checkbutton check:hover {
+    border-color: #fbbf24;
+}
+
+.theme-routines checkbutton check:checked {
+    background-color: #f59e0b;
+    background-image: none;
+    border-color: #f59e0b;
+    color: white;
+}
+
+/* ==========================================================================
+   HEADER & TABS (No large buttons, sleek text on top)
+   ========================================================================== */
+.tabs-row {
+    margin-bottom: 6px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    padding-bottom: 4px;
+}
+
+.tab-btn {
+    background: transparent;
+    background-color: transparent;
+    background-image: none;
+    border: none;
+    box-shadow: none;
+    padding: 2px 4px 4px 4px;
+    margin: 0px;
+    outline: none;
+    border-radius: 0px;
+    border-bottom: 2px solid transparent;
+}
+
+.tab-btn:hover {
+    background: transparent;
+    background-color: transparent;
+    background-image: none;
+}
+
+.tab-label {
+    font-size: 11px;
+    font-weight: bold;
+    color: #9ca3af;
+    letter-spacing: 0.3px;
+    transition: color 0.15s ease;
+}
+
+.tab-btn:hover .tab-label {
+    color: #ffffff;
+}
+
+.date-row {
+    margin-top: 2px;
+    margin-bottom: 4px;
+}
+
+.title-date {
+    font-size: 13px;
+    font-weight: bold;
+    color: #f9fafb;
+}
+
+.progress-badge {
+    border-radius: 12px;
+    padding: 2px 9px;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+progressbar trough {
+    background-color: rgba(255, 255, 255, 0.08);
+    background-image: none;
+    border-radius: 4px;
+    min-height: 4px;
+    border: none;
+    margin-top: 2px;
+    margin-bottom: 6px;
+}
+
+/* ==========================================================================
+   TASKS LIST
+   ========================================================================== */
+.tasks-viewport {
+    background-color: transparent;
+}
+
+.tasks-box {
+    background-color: transparent;
+}
+
+.task-row {
+    background-color: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 12px;
+    padding: 6px 10px;
+    margin-bottom: 6px;
+    transition: all 0.15s ease;
+}
+
+.task-label {
+    color: #f3f4f6;
+    font-size: 13px;
+    font-weight: normal;
+}
+
+.task-label-completed {
+    color: #6b7280;
+    font-size: 13px;
+    text-decoration: line-through;
+}
+
+.btn-icon {
+    background: transparent;
+    background-image: none;
+    border: none;
+    box-shadow: none;
+    color: #9ca3af;
+    padding: 2px 5px;
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+.btn-icon:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    background-image: none;
+    color: #ffffff;
+}
+
+.btn-delete {
+    background: transparent;
+    background-image: none;
+    border: none;
+    box-shadow: none;
+    color: #6b7280;
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-size: 14px;
+    opacity: 0.6;
+}
+
+.btn-delete:hover {
+    background-color: rgba(239, 68, 68, 0.2);
+    background-image: none;
+    color: #f87171;
+    opacity: 1.0;
+}
+
+/* ==========================================================================
+   INPUT & ADD
+   ========================================================================== */
+.entry-add {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: #f9fafb;
+    padding: 7px 12px;
+    font-size: 13px;
+}
+
+.btn-add {
+    border: none;
+    border-radius: 10px;
+    padding: 6px 12px;
+    font-weight: bold;
+    font-size: 13px;
+    background-image: none;
+}
+
+/* Custom Checkbox */
+checkbutton {
+    padding: 0;
+}
+
+checkbutton check {
+    border-radius: 6px;
+    border: 1.5px solid rgba(255, 255, 255, 0.35);
+    background-color: rgba(255, 255, 255, 0.06);
+    background-image: none;
+    min-width: 17px;
+    min-height: 17px;
+}
+
+/* Custom Scrollbars */
+scrollbar slider {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    min-width: 4px;
+}
+
+scrollbar slider:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+scrollbar trough {
+    background-color: transparent;
+}

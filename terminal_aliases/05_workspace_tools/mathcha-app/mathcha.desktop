@@ -1,0 +1,14 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Mathcha
+GenericName=Mathematics Editor
+Comment=WYSIWYG Mathematical Document and Diagram Editor
+Exec=math %u
+Icon=mathcha
+Terminal=false
+Categories=Office;Science;Math;Education;Graphics;
+MimeType=x-scheme-handler/mathcha;
+StartupWMClass=Mathcha
+StartupNotify=true
+Keywords=math;Math;latex;equation;diagram;graph;editor;mathcha;
